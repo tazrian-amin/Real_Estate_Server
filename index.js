@@ -64,6 +64,13 @@ async function run() {
             const details = await buyingCollection.findOne(query);
             res.send(details);
         })
+
+        app.get('/client-reviews', async (req, res) => {
+            const query = {};
+            const cursor = reviewCollection.find(query).limit(4);
+            const clientReview = await cursor.toArray();
+            res.send(clientReview);
+        })
     }
     finally {
 
