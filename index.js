@@ -65,6 +65,12 @@ async function run() {
             res.send(details);
         })
 
+        app.post('/buy', verifyJWT, async (req, res) => {
+            const addToBuy = req.body;
+            const result = await buyingCollection.insertOne(addToBuy);
+            res.send(result);
+        })
+
         app.get('/client-reviews', async (req, res) => {
             const query = {};
             const cursor = reviewCollection.find(query).limit(4);
