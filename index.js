@@ -71,11 +71,42 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/client-reviews', async (req, res) => {
+        app.get('/reviews', async (req, res) => {
+            const query = {};
+            const cursor = reviewCollection.find(query);
+            const clientReview = await cursor.toArray();
+            res.send(clientReview);
+        })
+        app.get('/overview-reviews', async (req, res) => {
             const query = {};
             const cursor = reviewCollection.find(query).limit(4);
             const clientReview = await cursor.toArray();
             res.send(clientReview);
+        })
+
+        app.get('/my-reviews', verifyJWT, async (req, res) => {
+
+            // JWT verification
+            const decoded = req.decoded;
+            if (decoded.email !== req.query.email) {
+                res.status(403).send({ message: 'Forbidden Access' })
+            }
+
+            let query = {};
+            if (req.query.email) {
+                query = {
+                    email: req.query.email
+                }
+            }
+            const cursor = reviewCollection.find(query);
+            const myReviews = await cursor.toArray();
+            res.send(myReviews);
+        })
+
+        app.post('/reviews', verifyJWT, async (req, res) => {
+            const addReview = req.body;
+            const result = await reviewCollection.insertOne(addReview);
+            res.send(result);
         })
     }
     finally {
