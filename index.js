@@ -34,7 +34,6 @@ function verifyJWT(req, res, next) {
 async function run() {
     try {
         const buyingCollection = client.db('realEstate').collection('buy');
-        const orderCollection = client.db('realEstate').collection('orders');
         const reviewCollection = client.db('realEstate').collection('reviews');
 
         // Assigning JWT token
@@ -77,6 +76,14 @@ async function run() {
             const clientReview = await cursor.toArray();
             res.send(clientReview);
         })
+
+        app.get('/reviews/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const review = await reviewCollection.findOne(query);
+            res.send(review);
+        })
+
         app.get('/overview-reviews', async (req, res) => {
             const query = {};
             const cursor = reviewCollection.find(query).limit(4);
@@ -106,6 +113,32 @@ async function run() {
         app.post('/reviews', verifyJWT, async (req, res) => {
             const addReview = req.body;
             const result = await reviewCollection.insertOne(addReview);
+            res.send(result);
+        })
+
+        // Updating review data to db
+        app.patch('/reviews/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const updatedReview = req.body;
+            const query = { _id: ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    photo: updatedReview.photo,
+                    rating: updatedReview.rating,
+                    name: updatedReview.name,
+                    comment: updatedReview.comment,
+                    time: updatedReview.time
+                }
+            };
+            const result = await reviewCollection.updateOne(query, updatedDoc);
+            res.send(result);
+        })
+
+        // Deleing review data from db
+        app.delete('/reviews/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await reviewCollection.deleteOne(query);
             res.send(result);
         })
     }
