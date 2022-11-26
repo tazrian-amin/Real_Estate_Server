@@ -73,7 +73,7 @@ async function run() {
 
         app.get('/reviews', async (req, res) => {
             const query = {};
-            const cursor = reviewCollection.find(query);
+            const cursor = reviewCollection.find(query).sort({ "time": -1 });
             const clientReview = await cursor.toArray();
             res.send(clientReview);
         })
@@ -98,7 +98,7 @@ async function run() {
                     email: req.query.email
                 }
             }
-            const cursor = reviewCollection.find(query);
+            const cursor = reviewCollection.find(query).sort({ "time": -1 });
             const myReviews = await cursor.toArray();
             res.send(myReviews);
         })
