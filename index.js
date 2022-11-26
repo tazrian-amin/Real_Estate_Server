@@ -43,6 +43,20 @@ async function run() {
             res.send({ token });
         })
 
+        // Creating Data in DB
+        app.post('/buy', verifyJWT, async (req, res) => {
+            const addToBuy = req.body;
+            const result = await buyingCollection.insertOne(addToBuy);
+            res.send(result);
+        })
+
+        app.post('/reviews', verifyJWT, async (req, res) => {
+            const addReview = req.body;
+            const result = await reviewCollection.insertOne(addReview);
+            res.send(result);
+        })
+
+        // Reading Data from DB
         app.get('/overview', async (req, res) => {
             const query = {};
             const cursor = buyingCollection.find(query).limit(3);
@@ -62,12 +76,6 @@ async function run() {
             const query = { _id: ObjectId(id) };
             const details = await buyingCollection.findOne(query);
             res.send(details);
-        })
-
-        app.post('/buy', verifyJWT, async (req, res) => {
-            const addToBuy = req.body;
-            const result = await buyingCollection.insertOne(addToBuy);
-            res.send(result);
         })
 
         app.get('/reviews', async (req, res) => {
@@ -92,7 +100,6 @@ async function run() {
         })
 
         app.get('/my-reviews', verifyJWT, async (req, res) => {
-
             // JWT verification
             const decoded = req.decoded;
             if (decoded.email !== req.query.email) {
@@ -110,13 +117,7 @@ async function run() {
             res.send(myReviews);
         })
 
-        app.post('/reviews', verifyJWT, async (req, res) => {
-            const addReview = req.body;
-            const result = await reviewCollection.insertOne(addReview);
-            res.send(result);
-        })
-
-        // Updating review data to db
+        // Updating Data in DB
         app.patch('/reviews/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const updatedReview = req.body;
@@ -134,7 +135,7 @@ async function run() {
             res.send(result);
         })
 
-        // Deleing review data from db
+        // Deleing Data from DB
         app.delete('/reviews/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
